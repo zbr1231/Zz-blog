@@ -26,6 +26,8 @@ import lombok.experimental.Accessors;
 public class Article  {
     @TableId
     private Long id;
+    //用户id
+    private Long userId;
     //标题
     private String title;
     //文章内容

@@ -14,6 +14,8 @@ import java.util.List;
 public class AddArticleDto {
 
     private Long id;
+    //用户id
+    private Long userId;
     //标题
     private String title;
     //文章内容

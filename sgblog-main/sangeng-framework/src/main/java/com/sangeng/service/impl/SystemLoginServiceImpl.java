@@ -49,6 +49,7 @@ public class SystemLoginServiceImpl implements LoginService {
         //把token封装 返回
         Map<String,String> map = new HashMap<>();
         map.put("token",jwt);
+        map.put("userId",userId);
         return ResponseResult.okResult(map);
     }
 
