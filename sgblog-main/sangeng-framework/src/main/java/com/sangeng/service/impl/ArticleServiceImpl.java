@@ -76,7 +76,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 状态是正式发布的
         lambdaQueryWrapper.eq(Article::getStatus,SystemConstants.ARTICLE_STATUS_NORMAL);
         // 对isTop进行降序
-        lambdaQueryWrapper.orderByDesc(Article::getIsTop);
+        lambdaQueryWrapper.orderByDesc(Article::getIsTop,Article::getCreateTime);
 
         //分页查询
         Page<Article> page = new Page<>(pageNum,pageSize);
@@ -87,6 +87,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         articles.stream()
                 .map(article -> article.setCategoryName(categoryService.getById(article.getCategoryId()).getName()))
                 .collect(Collectors.toList());
+        //查询用户名称
+
         //articleId去查询articleName进行设置
 //        for (Article article : articles) {
 //            Category category = categoryService.getById(article.getCategoryId());
@@ -134,6 +136,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     @Transactional
     public ResponseResult add(AddArticleDto articleDto) {
+        if(articleDto.getCategoryId() == null) {
+            return ResponseResult.errorResult(400,"文章分类不能为空");
+        }
         //添加 博客
         Article article = BeanCopyUtils.copyBean(articleDto, Article.class);
         save(article);

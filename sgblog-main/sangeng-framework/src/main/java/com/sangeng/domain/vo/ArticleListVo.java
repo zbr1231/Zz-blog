@@ -21,7 +21,6 @@ public class ArticleListVo {
     //缩略图
     private String thumbnail;
 
-
     //访问量
     private Long viewCount;
 

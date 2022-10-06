@@ -3,6 +3,7 @@ package com.sangeng.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.sangeng.domain.ResponseResult;
+import com.sangeng.domain.dto.AddArticleDto;
 import com.sangeng.domain.entity.Article;
 import com.sangeng.service.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,11 @@ public class ArticleController {
 
     @Autowired
     private ArticleService articleService;
+
+    @PostMapping
+    public ResponseResult add(@RequestBody AddArticleDto article){
+        return articleService.add(article);
+    }
 
     @GetMapping("/hotArticleList")
     public ResponseResult hotArticleList(){
