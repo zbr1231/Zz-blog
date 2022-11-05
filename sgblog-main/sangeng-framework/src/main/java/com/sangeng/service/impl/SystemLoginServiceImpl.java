@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class SystemLoginServiceImpl implements LoginService {
@@ -44,12 +45,14 @@ public class SystemLoginServiceImpl implements LoginService {
         String userId = loginUser.getUser().getId().toString();
         String jwt = JwtUtil.createJWT(userId);
         //把用户信息存入redis
-        redisCache.setCacheObject("login:"+userId,loginUser);
-
+        //redisCache.setCacheObject("login:"+userId,loginUser);
+        redisCache.setCacheObject("login:"+userId,loginUser,15, TimeUnit.MINUTES);
         //把token封装 返回
         Map<String,String> map = new HashMap<>();
         map.put("token",jwt);
         map.put("userId",userId);
+        //存入token
+        redisCache.setCacheObject("token",jwt,15,TimeUnit.MINUTES);
         return ResponseResult.okResult(map);
     }
 

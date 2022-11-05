@@ -3,6 +3,7 @@ package com.sangeng.filter;
 import com.alibaba.fastjson.JSON;
 import com.sangeng.domain.ResponseResult;
 import com.sangeng.domain.entity.LoginUser;
+import com.sangeng.domain.entity.UserHolder;
 import com.sangeng.enums.AppHttpCodeEnum;
 import com.sangeng.utils.JwtUtil;
 import com.sangeng.utils.RedisCache;
@@ -62,7 +63,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         //存入SecurityContextHolder
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginUser,null,null);
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
+        //存入ThreadLocal
+        UserHolder.setUserId(userId);
         filterChain.doFilter(request, response);
     }
 

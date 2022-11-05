@@ -8,12 +8,15 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
+import com.sangeng.domain.UserTest;
 import com.sangeng.domain.entity.Article;
 import com.sangeng.mapper.ArticleMapper;
+import com.sangeng.mapper.TestMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.*;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest(classes = SanGengBlogApplication.class)
+@Component
 @ConfigurationProperties(prefix = "oss")
 public class OSSTest {
 
@@ -87,12 +91,4 @@ public class OSSTest {
 
     }
 
-    @Test
-    public void test(){
-        List<Article> list = new ArrayList<Article>();
-        list.add(new Article(1L,1));
-        list.add(new Article(8L,1));
-
-        articleMapper.updateViewCountChange(list);
-    }
 }

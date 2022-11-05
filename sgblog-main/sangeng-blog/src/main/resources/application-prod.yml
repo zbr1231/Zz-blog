@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:mysql://47.92.105.164:3306/sg_blog?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+    username: root
+    password: Zbr14222.

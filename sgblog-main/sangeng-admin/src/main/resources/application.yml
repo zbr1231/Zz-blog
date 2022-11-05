@@ -6,6 +6,8 @@ spring:
     username: root
     password: Zbr14222.
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      max-lifetime: 10
   servlet:
     multipart:
       max-file-size: 100MB
