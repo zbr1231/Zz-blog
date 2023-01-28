@@ -19,8 +19,11 @@ import com.sangeng.domain.ResponseResult;
 import com.sangeng.enums.AppHttpCodeEnum;
 import com.sangeng.exception.SystemException;
 import com.sangeng.service.UploadService;
+import com.sangeng.utils.AuditUtil;
 import com.sangeng.utils.PathUtils;
 import lombok.Data;
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,13 +31,16 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 @Service
 @Data
 @ConfigurationProperties(prefix = "oss")
 public class OssUploadService implements UploadService {
+    @Autowired
+    AuditUtil audit;
     @Override
-    public ResponseResult uploadImg(MultipartFile img) throws IOException {
+    public ResponseResult uploadImg(MultipartFile img) throws IOException, JSONException {
         //判断文件类型
         //获取原始文件名
         String originalFilename = img.getOriginalFilename();
@@ -49,7 +55,13 @@ public class OssUploadService implements UploadService {
 //        String url = uploadOss(img,filePath);//七牛云  2099/2/3/wqeqeqe.png
         String url = uploadFile(filePath,suffix,img.getInputStream());//七牛云  2099/2/3/wqeqeqe.png
 
-
+        //图片审核
+        Map<String, String> map = audit.auditImage(url);
+        if("0".equals(map.get("pass"))){
+            deleteFile(filePath);
+            //审核不通过返回信息
+            return ResponseResult.errorResult(400,map.get("msg"));
+        }
         return ResponseResult.okResult(url);
     }
 
@@ -118,5 +130,20 @@ public class OssUploadService implements UploadService {
         // 关闭OSSClient。
         ossClient.shutdown();
         return "https://"+bucketName+"."+endpoint+"/"+filePath;
+    }
+    private void deleteFile(String objectName) {
+        // yourEndpoint填写Bucket所在地域对应的Endpoint。以华东1（杭州）为例，Endpoint填写为https://oss-cn-hangzhou.aliyuncs.com。
+        String endpoint = "oss-cn-beijing.aliyuncs.com";
+
+        // 阿里云账号AccessKey拥有所有API的访问权限，风险很高。强烈建议您创建并使用RAM用户进行API访问或日常运维，请登录RAM控制台创建RAM用户。
+        String accessKeyId = "LTAI5tQ5YW4xXy2RC5nDaYZv";
+        String accessKeySecret = "yzt34ICFqAxND6pMPCaJOHEq9giz1l";
+        String bucketName = "zbr1231";
+        // 创建OSSClient实例。
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        ossClient.deleteObject(bucketName,objectName);
+
+        // 关闭OSSClient。
+        ossClient.shutdown();
     }
 }

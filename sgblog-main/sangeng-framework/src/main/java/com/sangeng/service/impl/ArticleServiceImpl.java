@@ -1,5 +1,6 @@
 package com.sangeng.service.impl;
 
+import com.baidu.aip.contentcensor.AipContentCensor;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,16 +16,23 @@ import com.sangeng.mapper.ArticleMapper;
 import com.sangeng.service.ArticleService;
 import com.sangeng.service.ArticleTagService;
 import com.sangeng.service.CategoryService;
+import com.sangeng.utils.AuditUtil;
 import com.sangeng.utils.BeanCopyUtils;
 import com.sangeng.utils.RedisCache;
+import lombok.Data;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cglib.beans.BeanCopier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -39,6 +47,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private ArticleTagService articleTagService;
+
+    @Autowired
+    private AuditUtil audit;
 
     @Resource
     private ArticleMapper articleMapper;
@@ -135,12 +146,18 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     @Transactional
-    public ResponseResult add(AddArticleDto articleDto) {
+    public ResponseResult add(AddArticleDto articleDto) throws JSONException {
         if(articleDto.getCategoryId() == null) {
             return ResponseResult.errorResult(400,"文章分类不能为空");
         }
         //添加 博客
         Article article = BeanCopyUtils.copyBean(articleDto, Article.class);
+        //文本审核
+        Map<String, String> map = audit.auditText(article.getTitle()+","+article.getSummary()+","+article.getContent());
+        if("0".equals(map.get("pass"))){
+            //审核不通过返回信息
+            return ResponseResult.errorResult(400,map.get("msg"));
+        }
         save(article);
         List<ArticleTag> articleTags = articleDto.getTags().stream()
                 .map(tagId -> new ArticleTag(article.getId(), tagId))
@@ -150,6 +167,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         articleTagService.saveBatch(articleTags);
         return ResponseResult.okResult();
     }
+
 
     @Override
     public PageVo selectArticlePage(Article article, Integer pageNum, Integer pageSize) {
