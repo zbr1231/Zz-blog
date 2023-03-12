@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
     @Autowired
     private RoleMenuService roleMenuService;
+    @Resource
+    private RoleMapper roleMapper;
     @Override
     public List<String> selectRoleKeyByUserId(Long id) {
         //判断是否是管理员 如果是返回集合中只需要有admin
@@ -56,13 +59,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         Page<Role> page = new Page<>();
         page.setCurrent(pageNum);
         page.setSize(pageSize);
+        page.setSearchCount(false);
         page(page,lambdaQueryWrapper);
-
+        Long total = roleMapper.count();
         //转换成VO
         List<Role> roles = page.getRecords();
 
         PageVo pageVo = new PageVo();
-        pageVo.setTotal(page.getTotal());
+        pageVo.setTotal(total);
         pageVo.setRows(roles);
         return ResponseResult.okResult(pageVo);
     }

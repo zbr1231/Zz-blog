@@ -3,6 +3,7 @@ package com.sangeng.controller;
 import com.sangeng.domain.ResponseResult;
 import com.sangeng.enums.AppHttpCodeEnum;
 import com.sangeng.service.UploadService;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +25,7 @@ public class UploadController {
     public ResponseResult uploadImg(@RequestParam("img") MultipartFile multipartFile) {
         try {
             return uploadService.uploadImg(multipartFile);
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
             throw new RuntimeException("文件上传上传失败");
         }

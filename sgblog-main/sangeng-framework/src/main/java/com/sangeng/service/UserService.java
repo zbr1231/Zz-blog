@@ -13,7 +13,11 @@ import com.sangeng.domain.entity.User;
  */
 public interface UserService extends IService<User> {
 
-    ResponseResult userInfo();
+    ResponseResult userInfoPersonal();
+
+    ResponseResult userInfo(Long userId);
+
+    ResponseResult countInfo(Long userId);
 
     ResponseResult updateUserInfo(User user);
 

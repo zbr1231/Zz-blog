@@ -3,6 +3,7 @@ package com.sangeng.controller;
 import com.sangeng.domain.ResponseResult;
 import com.sangeng.domain.entity.Message;
 import com.sangeng.service.MessageService;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class MessageController {
     @Autowired
     MessageService messageService;
     @PostMapping
-    public ResponseResult add(@RequestBody Message message) {
+    public ResponseResult add(@RequestBody Message message) throws JSONException {
         System.out.println("==============");
         messageService.addMessage(message);
         return ResponseResult.okResult();

@@ -4,7 +4,7 @@ import com.sangeng.domain.ResponseResult;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@ControllerAdvice
+//@ControllerAdvice
 public class MyExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseResult handler(Exception exception){

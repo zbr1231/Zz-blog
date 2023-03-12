@@ -24,6 +24,15 @@ public class ArticleListVo {
     //访问量
     private Long viewCount;
 
+    //是否置顶
+    private String isTop;
+
+    //用户id
+    private Long userId;
+
+    //用户名
+    private String userName;
+
     private Date createTime;
 
 

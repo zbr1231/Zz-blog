@@ -1,4 +1,4 @@
-package com.example.hadoop.entity;
+package com.sangeng.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

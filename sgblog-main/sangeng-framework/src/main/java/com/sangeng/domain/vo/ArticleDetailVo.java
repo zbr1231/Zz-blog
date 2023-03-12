@@ -12,6 +12,10 @@ import java.util.Date;
 public class ArticleDetailVo {
 
     private Long id;
+    //用户id
+    private Long userId;
+    //用户名
+    private String userName;
     //标题
     private String title;
     //文章摘要
@@ -27,6 +31,8 @@ public class ArticleDetailVo {
     private String content;
     //访问量
     private Long viewCount;
+    //点赞数
+    private Long likeCount;
 
     private Date createTime;
 

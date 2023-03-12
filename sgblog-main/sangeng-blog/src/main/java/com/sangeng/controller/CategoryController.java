@@ -15,8 +15,13 @@ public class CategoryController {
     @Autowired
     private CategoryService categoryService;
 
+    @GetMapping("/getArticleCategoryList")
+    public ResponseResult getArticleCategoryList(){
+       return categoryService.getArticleCategoryList();
+    }
+
     @GetMapping("/getCategoryList")
     public ResponseResult getCategoryList(){
-       return categoryService.getCategoryList();
+        return categoryService.getCategoryList();
     }
 }

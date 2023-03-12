@@ -2,6 +2,7 @@ package com.sangeng.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sangeng.domain.entity.Menu;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -21,5 +22,8 @@ public interface MenuMapper extends BaseMapper<Menu> {
     List<Menu> selectRouterMenuTreeByUserId(Long userId);
 
     List<Long> selectMenuListByRoleId(Long roleId);
+
+    @Select("select count(1) from sys_menu")
+    Long count();
 }
 

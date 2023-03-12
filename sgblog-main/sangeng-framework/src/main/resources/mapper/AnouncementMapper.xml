@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sangeng.mapper.AnouncementMapper">
+    
+    <resultMap type="com.sangeng.domain.entity.Anouncement" id="AnouncementResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectAnouncementVo">
+        select id, user_id, title, content, create_time, del_flag from sg_anouncement
+    </sql>
+
+    <select id="selectAnouncementList" parameterType="com.sangeng.domain.entity.Anouncement" resultMap="AnouncementResult">
+        <include refid="selectAnouncementVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+        </where>
+    </select>
+    
+    <select id="selectAnouncementById" parameterType="Long" resultMap="AnouncementResult">
+        <include refid="selectAnouncementVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertAnouncement" parameterType="com.sangeng.domain.entity.Anouncement">
+        insert into sg_anouncement
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="title != null">title,</if>
+            <if test="content != null">content,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="title != null">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAnouncement" parameterType="com.sangeng.domain.entity.Anouncement">
+        update sg_anouncement
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAnouncementById" parameterType="Long">
+        delete from sg_anouncement where id = #{id}
+    </delete>
+
+    <delete id="deleteAnouncementByIds" parameterType="String">
+        delete from sg_anouncement where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

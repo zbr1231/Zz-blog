@@ -37,6 +37,10 @@ public class BlogLoginServiceImpl implements BlogLoginService {
         }
         //获取userid 生成token
         LoginUser loginUser = (LoginUser) authenticate.getPrincipal();
+        //用户状态判断
+        if("1".equals(loginUser.getUser().getStatus())){
+            return ResponseResult.errorResult(402,"用户已被禁用，请联系管理员");
+        }
         String userId = loginUser.getUser().getId().toString();
         String jwt = JwtUtil.createJWT(userId);
         //把用户信息存入redis

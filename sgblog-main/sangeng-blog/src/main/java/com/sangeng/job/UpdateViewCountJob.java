@@ -31,7 +31,12 @@ public class UpdateViewCountJob {
         }
         List<Article> articles = viewCountMap.entrySet()
                 .stream()
-                .map(entry -> new Article(Long.valueOf(entry.getKey()), entry.getValue().longValue()))
+                .map(entry -> Article
+                                .builder()
+                                .id(Long.valueOf(entry.getKey()))
+                                .viewCount(entry.getValue().longValue())
+                                .build()
+                        )
                 .collect(Collectors.toList());
         //更新到数据库中
         articleService.saveViewCountChange(articles);

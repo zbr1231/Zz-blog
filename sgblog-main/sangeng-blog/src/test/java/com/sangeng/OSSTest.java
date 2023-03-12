@@ -1,5 +1,7 @@
 package com.sangeng;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.http.Response;
@@ -8,20 +10,43 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
-import com.sangeng.domain.UserTest;
-import com.sangeng.domain.entity.Article;
-import com.sangeng.mapper.ArticleMapper;
-import com.sangeng.mapper.TestMapper;
+import com.sangeng.domain.ResponseResult;
+import com.sangeng.domain.entity.*;
+import com.sangeng.domain.vo.HotArticleVo;
+import com.sangeng.enums.AppHttpCodeEnum;
+import com.sangeng.exception.SystemException;
+import com.sangeng.mapper.*;
+import com.sangeng.service.ArticleService;
+import com.sangeng.service.CategoryService;
+import com.sangeng.service.RecommendService;
+import com.sangeng.service.UserService;
+import com.sangeng.utils.BeanCopyUtils;
+import com.sangeng.utils.RedisCache;
+import org.elasticsearch.action.support.WriteRequest;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.UpdateByQueryRequest;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.document.Document;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.BulkOptions;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.UpdateQuery;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootTest(classes = SanGengBlogApplication.class)
 @Component
@@ -90,5 +115,110 @@ public class OSSTest {
         }
 
     }
+    @Resource
+    RecommendService recommendService;
+    @Resource
+    RedisCache redisCache;
+    @Resource
+    UserService userService;
+    @Resource
+    CategoryService categoryService;
+    @Autowired
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
+    @Resource
+    EsArticleMapper esArticleMapper;
+    @Test
+    public void test2(){
 
+//        BulkOptions.BulkOptionsBuilder builder = BulkOptions.builder();
+////设置刷新策略
+//        builder.withRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+////1、批量更新
+//        elasticsearchRestTemplate.bulkUpdate(updateQueries, builder.build(), IndexCoordinates.of("索引名称"));
+
+        List<Article> articles = articleMapper.selectList(null);
+        articles.stream()
+                .map(article->{
+                    article.setCategoryName(categoryService.getById(article.getCategoryId()).getName());
+                    article.setUserName(userService.getById(article.getUserId()).getNickName());
+                    return article;
+                })
+                .collect(Collectors.toList());
+        List<ArticleForEs> articleForEs = BeanCopyUtils.copyBeanList(articles, ArticleForEs.class);
+        System.out.println(articleForEs.size());
+//        elasticsearchRestTemplate.createIndex(ArticleForEs.class);
+//        elasticsearchRestTemplate.putMapping(ArticleForEs.class);
+        elasticsearchRestTemplate.save(articleForEs);
+
+    }
+    @Test
+    public void test3(){
+        String text = "java";
+        //高亮对象
+        HighlightBuilder highlightBuilder = new HighlightBuilder();
+        highlightBuilder.field("title").field("summary").field("userName")
+                .preTags("<span style='background-color:yellow'>")
+                .postTags("</span>");
+        //构建条件对象
+        BoolQueryBuilder queryBuilder = new BoolQueryBuilder();
+        //一定查询
+//        List<QueryBuilder> must = queryBuilder.must();
+//        must.add(QueryBuilders.matchQuery("title", text));
+        //选择性查询
+        List<QueryBuilder> should = queryBuilder.should();
+        should.add(QueryBuilders.matchQuery("title", text));
+        should.add(QueryBuilders.matchQuery("summary", text));
+        should.add(QueryBuilders.matchQuery("userName", text));
+
+        NativeSearchQuery query = new NativeSearchQueryBuilder()
+                //条件
+                .withQuery(queryBuilder)
+                //高亮
+                .withHighlightBuilder(highlightBuilder)
+                //分页
+                .withPageable(PageRequest.of(0, 4))
+                .build();
+        //获取查询结果
+        SearchHits<ArticleForEs> searchs = elasticsearchRestTemplate.search(query, ArticleForEs.class);
+        List<ArticleForEs> list = searchs.stream().map(searchHit -> {
+            ArticleForEs articleForEs = searchHit.getContent();
+            if (searchHit.getHighlightFields().containsKey("title")) {
+                articleForEs.setTitle(searchHit.getHighlightFields().get("title").get(0));
+            }
+            if (searchHit.getHighlightFields().containsKey("summary")) {
+                articleForEs.setSummary(searchHit.getHighlightFields().get("summary").get(0));
+            }
+            if (searchHit.getHighlightFields().containsKey("userName")) {
+                articleForEs.setUserName(searchHit.getHighlightFields().get("userName").get(0));
+            }
+            return articleForEs;
+        }).collect(Collectors.toList());
+        System.out.println(list);
+        //判断是否还有多余的数据
+        if (list.size() > (0 + 1) * 2) {
+            System.out.println(true);
+        }
+
+    }
+    @Test
+    public void test4(){
+        Document document = Document.create();
+        document.put("summary","64");
+        elasticsearchRestTemplate.update(UpdateQuery.builder("64").withDocument(document).build(),IndexCoordinates.of("zz-article"));
+    }
+    @Resource
+    UserMapper userMapper;
+    @Test
+    public void test5(){
+
+        Page<User> page = new Page<>();
+        page.setOptimizeCountSql(true);
+        page.setSearchCount(false);
+        page.setCurrent(0);
+        page.setSize(5);
+        Page<User> userPage = userMapper.selectPage(page, null);
+        List<User> records = userPage.getRecords();
+        System.out.println(page.getTotal());
+
+    }
 }

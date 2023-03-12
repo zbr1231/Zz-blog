@@ -14,6 +14,9 @@ import java.util.Map;
 @Component
 @ConfigurationProperties(prefix = "baidu")
 @Data
+/**
+ * 百度ai文本审核工具类
+ */
 public class AuditUtil {
     private String appId;
     private String apiKey;

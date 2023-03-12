@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class ViewCountRunner implements CommandLineRunner {
+public class RedisRunner implements CommandLineRunner {
 
     @Resource
     private ArticleMapper articleMapper;
@@ -30,7 +30,12 @@ public class ViewCountRunner implements CommandLineRunner {
                 .collect(Collectors.toMap(article -> article.getId().toString(), article -> {
                     return article.getViewCount()==null?0:article.getViewCount().intValue();
                 }));
+        Map<String, Integer> likeCountMap = articles.stream()
+                .collect(Collectors.toMap(article -> article.getId().toString(), article -> {
+                    return article.getLikeCount()==null?0:article.getLikeCount().intValue();
+                }));
         //存储到redis中
         redisCache.setCacheMap("article:viewCount",viewCountMap);
+        redisCache.setCacheMap("article:likeCount",likeCountMap);
     }
 }

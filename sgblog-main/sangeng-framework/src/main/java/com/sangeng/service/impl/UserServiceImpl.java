@@ -7,12 +7,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sangeng.domain.ResponseResult;
 import com.sangeng.domain.entity.User;
 import com.sangeng.domain.entity.UserRole;
+import com.sangeng.domain.vo.CountInfoVo;
 import com.sangeng.domain.vo.PageVo;
 import com.sangeng.domain.vo.UserInfoVo;
 import com.sangeng.domain.vo.UserVo;
 import com.sangeng.enums.AppHttpCodeEnum;
 import com.sangeng.exception.SystemException;
 import com.sangeng.mapper.UserMapper;
+import com.sangeng.service.ArticleService;
+import com.sangeng.service.FollowService;
 import com.sangeng.service.UserRoleService;
 import com.sangeng.service.UserService;
 import com.sangeng.utils.BeanCopyUtils;
@@ -39,8 +42,12 @@ import java.util.stream.Collectors;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Resource
     UserMapper userMapper;
+    @Resource
+    FollowService followService;
+    @Resource
+    ArticleService articleService;
     @Override
-    public ResponseResult userInfo() {
+    public ResponseResult userInfoPersonal() {
         //获取当前用户id
         Long userId = SecurityUtils.getUserId();
         //根据用户id查询用户信息
@@ -48,6 +55,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //封装成UserInfoVo
         UserInfoVo vo = BeanCopyUtils.copyBean(user,UserInfoVo.class);
         return ResponseResult.okResult(vo);
+    }
+
+    @Override
+    public ResponseResult userInfo(Long userId) {
+        User user = userMapper.selectById(userId);
+        UserInfoVo userInfoVo = BeanCopyUtils.copyBean(user,UserInfoVo.class);
+        return ResponseResult.okResult(userInfoVo);
+    }
+
+    @Override
+    public ResponseResult countInfo(Long userId) {
+        int articleCount = articleService.getCountByUserId(userId);
+        int followerCount = followService.getFollowerCount(userId);
+        Long totalViewCount = articleService.getUserTotalViewCount(userId);
+        CountInfoVo countInfoVo = new CountInfoVo(totalViewCount, articleCount, followerCount);
+        return ResponseResult.okResult(countInfoVo);
     }
 
     @Override
@@ -77,8 +100,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(userNameExist(user.getUserName())){
             throw new SystemException(AppHttpCodeEnum.USERNAME_EXIST);
         }
-        if(nickNameExist(user.getNickName())){
-            throw new SystemException(AppHttpCodeEnum.NICKNAME_EXIST);
+        if(emailExist(user.getEmail())){
+            throw new SystemException(AppHttpCodeEnum.EMAIL_EXIST);
         }
         //...
         //对密码进行加密
@@ -100,15 +123,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Page<User> page = new Page<>();
         page.setCurrent(pageNum);
         page.setSize(pageSize);
+        page.setSearchCount(false);
         page(page,queryWrapper);
-
+        Long total = userMapper.count();
         //转换成VO
         List<User> users = page.getRecords();
         List<UserVo> userVoList = users.stream()
                 .map(u -> BeanCopyUtils.copyBean(u, UserVo.class))
                 .collect(Collectors.toList());
         PageVo pageVo = new PageVo();
-        pageVo.setTotal(page.getTotal());
+        pageVo.setTotal(total);
         pageVo.setRows(userVoList);
         return ResponseResult.okResult(pageVo);
     }
@@ -157,7 +181,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public boolean updateUserstatus(Long userId, String status) {
-        status = String.valueOf(Math.abs(Integer.parseInt(status)-1));
+        status = String.valueOf(status);
         return userMapper.updateStatus(userId, status)>0;
     }
 
@@ -170,9 +194,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userRoleService.saveBatch(sysUserRoles);
     }
 
-    private boolean nickNameExist(String nickName) {
+
+
+    private boolean emailExist(String email) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getNickName,nickName);
+        queryWrapper.eq(User::getEmail,email);
         return count(queryWrapper)>0;
     }
 

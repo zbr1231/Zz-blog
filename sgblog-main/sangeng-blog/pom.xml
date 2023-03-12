@@ -17,6 +17,15 @@
             <artifactId>sangeng-framework</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-websocket</artifactId>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -27,7 +36,7 @@
                 <!-- 全局配置 -->
                 <configuration>
                     <!-- 配置远程 docker 守护进程 url -->
-                    <dockerHost>http://47.92.105.164:2375</dockerHost>
+                    <dockerHost>http://47.113.178.219:2375</dockerHost>
                     <!-- 认证配置，用于私有 registry 认证 -->
                     <!--
                         <authConfig>
@@ -43,7 +52,7 @@
                             <name>zz/${project.name}:latest</name>
                             <!-- <name>lzj/${project.name}:${project.version}</name> -->
                             <!-- registry 地址，用于推送/拉取镜像 -->
-                            <registry>47.92.105.164:5000</registry>
+                            <registry>47.113.178.219:5000</registry>
                             <!-- 镜像 build 相关配置 -->
                             <build>
                                 <!-- 使用 Dockerfile 文件，默认地址是 src/main/docker -->

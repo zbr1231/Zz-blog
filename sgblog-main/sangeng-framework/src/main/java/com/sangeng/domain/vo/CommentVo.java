@@ -14,6 +14,8 @@ public class CommentVo {
     private Long id;
     //文章id
     private Long articleId;
+    //评论文章标题
+    private String title;
     //根评论id
     private Long rootId;
     //评论内容
@@ -23,12 +25,16 @@ public class CommentVo {
     private String toCommentUserName;
     //回复目标评论id
     private Long toCommentId;
+    //评论是否已读
+    private Integer read;
 
     private Long createBy;
 
     private Date createTime;
 
     private String username;
+
+    private String avatar;
 
     private List<CommentVo> children;
 }

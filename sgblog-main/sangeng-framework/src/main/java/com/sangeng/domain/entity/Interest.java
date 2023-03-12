@@ -2,6 +2,7 @@ package com.sangeng.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -15,9 +16,10 @@ import lombok.experimental.Accessors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @TableName("sg_user_tag")
 @Accessors(chain = true)
-public class Interests {
+public class Interest {
     /**
      * 用户id
      */

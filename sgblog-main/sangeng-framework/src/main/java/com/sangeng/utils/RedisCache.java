@@ -112,6 +112,19 @@ public class RedisCache
         return count == null ? 0 : count;
     }
 
+    public <T> long delCacheListValue(final String key, final int index){
+        Long remove = redisTemplate.opsForList().remove(key, index, getCacheList(key).get(index));
+        return remove;
+    }
+    public <T> long listRightPush(final String key, final T value){
+        Long aLong = redisTemplate.opsForList().rightPush(key, value);
+        return aLong;
+    }
+    public <T> long listLeftPush(final String key, final T value){
+        Long aLong = redisTemplate.opsForList().leftPush(key, value);
+        return aLong;
+    }
+
     /**
      * 获得缓存的list对象
      *

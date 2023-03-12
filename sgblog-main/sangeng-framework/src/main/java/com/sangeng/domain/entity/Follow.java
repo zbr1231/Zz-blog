@@ -17,7 +17,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @TableName("chat_follow")
 @Accessors(chain = true)
-public class ChatFollow {
+public class Follow {
     /**
      * 当前用户id
      */

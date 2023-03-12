@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
@@ -18,13 +20,17 @@ import java.util.Date;
 public class AddCommentDto {
     private Long id;
     //评论类型（0代表文章评论，1代表友链评论）
+    @NotNull(message = "评论类型不能为空")
     @ApiModelProperty(notes = "评论类型（0代表文章评论，1代表友链评论）")
     private String type;
+    @NotNull(message = "文章id不能为空")
     //文章id
     @ApiModelProperty(notes = "文章id")
     private Long articleId;
+    @NotNull(message = "rootId不能为空")
     //根评论id
     private Long rootId;
+    @NotBlank(message = "评论内容不能为空")
     //评论内容
     private String content;
     //所回复的目标评论的userid

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sangeng.mapper.RecommendMapper">
+
+
+    <select id="sortByBrowse" resultType="com.sangeng.domain.entity.ArticleSort">
+        SELECT
+            sal.article_id,
+            sum( 1 ) score,
+            sa.view_count
+        FROM
+            sg_action_log sal
+                LEFT JOIN sg_article sa ON sal.article_id = sa.id
+        WHERE
+            sal.user_id = #{userId} and sal.article_id != #{articleId} and sa.status = 0
+        GROUP BY
+            sal.user_id,
+            sal.article_id
+        ORDER BY
+            sa.view_count DESC,
+            score DESC
+            LIMIT ${pageNum},${pageSize}
+    </select>
+    <select id="sortByCollection" resultType="com.sangeng.domain.entity.ArticleSort">
+        SELECT
+            sc.article_id,1 score,sa.view_count
+        FROM
+            sg_collection sc
+                LEFT JOIN sg_article sa ON sc.article_id = sa.id
+        WHERE
+            sc.user_id = #{userId} and sc.article_id != #{articleId} and sa.status = 0
+        ORDER BY
+            sa.view_count DESC
+            LIMIT ${pageNum},${pageSize}
+    </select>
+    <resultMap type="com.sangeng.domain.entity.Recommend" id="RecommendResult">
+        <result property="id"    column="id"    />
+        <result property="articleId"    column="article_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="score"    column="score"    />
+    </resultMap>
+    <sql id="selectRecommendVo">
+        select id, article_id, user_id, score from sg_recommend
+    </sql>
+
+    <select id="selectRecommendList" parameterType="com.sangeng.domain.entity.Recommend" resultMap="RecommendResult">
+        <include refid="selectRecommendVo"/>
+        <where>
+            <if test="articleId != null "> and article_id = #{articleId}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="score != null "> and score = #{score}</if>
+        </where>
+    </select>
+
+    <select id="selectRecommendById" parameterType="Long" resultMap="RecommendResult">
+        <include refid="selectRecommendVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertRecommend" parameterType="com.sangeng.domain.entity.Recommend" useGeneratedKeys="true" keyProperty="id">
+        insert into sg_recommend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">article_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="score != null">score,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="articleId != null">#{articleId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="score != null">#{score},</if>
+        </trim>
+    </insert>
+
+    <update id="updateRecommend" parameterType="com.sangeng.domain.entity.Recommend">
+        update sg_recommend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="articleId != null">article_id = #{articleId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="score != null">score = #{score},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRecommendById" parameterType="Long">
+        delete from sg_recommend where id = #{id}
+    </delete>
+
+    <delete id="deleteRecommendByIds" parameterType="String">
+        delete from sg_recommend where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -13,6 +13,12 @@ public class HotArticleVo {
     //标题
     private String title;
 
+    //简要
+    private String summary;
+
+    //封面
+    private String thumbnail;
+
     //访问量
     private Long viewCount;
 }

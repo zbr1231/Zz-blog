@@ -40,6 +40,9 @@ public class Comment  {
     private Long toCommentUserId;
     //回复目标评论id
     private Long toCommentId;
+    //评论是否已读
+    @TableField("`read`")
+    private Integer read;
     @TableField(fill = FieldFill.INSERT)
     private Long createBy;
     @TableField(fill = FieldFill.INSERT)

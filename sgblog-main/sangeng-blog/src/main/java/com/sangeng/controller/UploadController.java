@@ -3,6 +3,7 @@ package com.sangeng.controller;
 
 import com.sangeng.domain.ResponseResult;
 import com.sangeng.service.UploadService;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,7 +18,7 @@ public class UploadController {
     private UploadService uploadService;
 
     @PostMapping("/upload")
-    public ResponseResult uploadImg(MultipartFile img) throws IOException {
+    public ResponseResult uploadImg(MultipartFile img) throws IOException, JSONException {
         return uploadService.uploadImg(img);
     }
 }

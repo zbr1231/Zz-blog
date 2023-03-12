@@ -16,4 +16,5 @@ public interface TestMapper {
     int save(@Param("id") int id,@Param("name") String name,@Param("city") String city,@Param("tel") String tel);
     @Update({"update user set name='zz' where id = #{id}"})
     int update(@Param("id")int id);
+
 }

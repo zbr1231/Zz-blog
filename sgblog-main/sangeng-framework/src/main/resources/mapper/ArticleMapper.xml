@@ -9,4 +9,11 @@
             where id = #{item.id};
         </foreach>
     </select>
+    <select id="updatelikeCountChange">
+        <foreach collection="list" item="item">
+            update sg_article
+            set like_count = like_count + #{item.likeCount}
+            where id = #{item.id};
+        </foreach>
+    </select>
 </mapper>

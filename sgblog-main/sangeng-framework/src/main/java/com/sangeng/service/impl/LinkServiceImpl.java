@@ -14,6 +14,7 @@ import com.sangeng.utils.BeanCopyUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +26,8 @@ import java.util.Objects;
  */
 @Service("linkService")
 public class LinkServiceImpl extends ServiceImpl<LinkMapper, Link> implements LinkService {
-
+    @Resource
+    LinkMapper linkMapper;
     @Override
     public ResponseResult getAllLink() {
         //查询所有审核通过的
@@ -48,13 +50,14 @@ public class LinkServiceImpl extends ServiceImpl<LinkMapper, Link> implements Li
         Page<Link> page = new Page<>();
         page.setCurrent(pageNum);
         page.setSize(pageSize);
+        page.setSearchCount(false);
         page(page,queryWrapper);
-
+        Long total = linkMapper.count();
         //转换成VO
         List<Link> categories = page.getRecords();
 
         PageVo pageVo = new PageVo();
-        pageVo.setTotal(page.getTotal());
+        pageVo.setTotal(total);
         pageVo.setRows(categories);
         return pageVo;
     }

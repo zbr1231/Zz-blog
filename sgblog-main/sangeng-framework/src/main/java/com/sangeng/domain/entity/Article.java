@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -19,6 +20,7 @@ import lombok.experimental.Accessors;
  */
 @SuppressWarnings("serial")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("sg_article")
@@ -28,6 +30,9 @@ public class Article  {
     private Long id;
     //用户id
     private Long userId;
+    //用户名
+    @TableField(exist = false)
+    private String userName;
     //标题
     private String title;
     //文章内容
@@ -45,8 +50,12 @@ public class Article  {
     private String isTop;
     //状态（0已发布，1草稿）
     private String status;
+    //审核是否通过（0未通过，1通过）
+    private Integer passed;
     //访问量
     private Long viewCount;
+    //点赞数
+    private Long likeCount;
     //是否允许评论 1是，0否
     private String isComment;
 
@@ -60,10 +69,9 @@ public class Article  {
     private Date updateTime;
     //删除标志（0代表未删除，1代表已删除）
     private Integer delFlag;
-
-    public Article(Long id, long viewCount) {
-        this.id = id;
-        this.viewCount = viewCount;
-    }
+//    public Article(Long id, long viewCount) {
+//        this.id = id;
+//        this.viewCount = viewCount;
+//    }
 }
 

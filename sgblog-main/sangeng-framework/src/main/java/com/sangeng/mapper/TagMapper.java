@@ -2,6 +2,8 @@ package com.sangeng.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sangeng.domain.entity.Tag;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 
 /**
@@ -11,6 +13,7 @@ import com.sangeng.domain.entity.Tag;
  * @since 2022-07-19 22:33:35
  */
 public interface TagMapper extends BaseMapper<Tag> {
-
+    @Select("select count(1) from sg_tag")
+    Long count();
 }
 

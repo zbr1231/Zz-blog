@@ -27,6 +27,8 @@ public class ArticleDto {
     private String isTop;
     //状态（0已发布，1草稿）
     private String status;
+    //审核状态（-1未通过，0审核中，1通过）
+    private Integer passed;
     //访问量
     private Long viewCount;
     //是否允许评论 1是，0否

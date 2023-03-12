@@ -24,7 +24,7 @@ public class TagVo {
     private Long id;
     //标签名
     private String name;
-
-
+    //文章数
+    private Long count;
 
 }
